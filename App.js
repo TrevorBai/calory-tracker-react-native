@@ -1,35 +1,32 @@
 import React, { useState } from 'react'
-import { StyleSheet, Text, View, TextInput, Button, ScrollView } from 'react-native'
+import { StyleSheet, View, Button, FlatList } from 'react-native'
+import CaloryItem from './components/CaloryItem'
+import CaloryInput from './components/CaloryInput'
 
 const App = () => {
-  const [enteredCalory, setEnteredCalory] = useState('')
   const [caloryGoals, setCaloryGoals] = useState([])
+  const [isAddMode, setIsAddMode] = useState(false)
 
-  const caloryInputHandler = enteredText => {
-    setEnteredCalory(enteredText)
+  const addCaloryHandler = (calory) => {
+    setCaloryGoals(currentCalories => [...currentCalories, { key: Math.random().toString(), value: calory }])
   }
 
-  const addCaloryHandler = () => {
-    setCaloryGoals(currentCalories => [...caloryGoals, enteredCalory])
+  const removeCaloryHandler = (caloryId) => {
+    setCaloryGoals(currentCalories => currentCalories.filter(cur => cur.key !== caloryId))
   }
 
   return (
     <View style={styles.screen}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Calory Goal"
-          style={styles.input}
-          onChangeText={caloryInputHandler}
-          value={enteredCalory}
-        />
-        <Button title="ADD" onPress={addCaloryHandler} />
-      </View>
-      <ScrollView>
-        {caloryGoals.map(cur => <View key={cur} style={styles.listItem}>
-          <Text >Calory: {cur}</Text>
-        </View>
-        )}
-      </ScrollView>
+      <Button title="Add New Calory" onPress={() => setIsAddMode(true)} />
+      <CaloryInput
+        visible={isAddMode}
+        title="ADD"
+        pressed={addCaloryHandler}
+      />
+      <FlatList
+        data={caloryGoals}
+        renderItem={itemData => <CaloryItem id={itemData.item.key} onDelete={removeCaloryHandler} title={itemData.item.value} />}
+      />
     </View>
   )
 }
@@ -39,23 +36,5 @@ export default App
 const styles = StyleSheet.create({
   screen: {
     padding: 50
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  input: {
-    width: '80%',
-    borderColor: 'black',
-    borderWidth: 1,
-    padding: 10
-  },
-  listItem: {
-    padding: 10,
-    marginVertical: 10,
-    backgroundColor: '#ccc',
-    borderColor: 'black',
-    borderWidth: 1
   }
 })
